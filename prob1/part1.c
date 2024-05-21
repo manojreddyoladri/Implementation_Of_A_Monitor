@@ -16,10 +16,10 @@ int number_of_items;
 
 // buffer struct definition
 typedef struct {
-		char *items;
-		int total_count;
-		int current_count;
-		sem_t mutex, empty, full;
+	char *items;
+	int total_count;
+	int current_count;
+	sem_t mutex, empty, full;
 } buffer_t;
 
 buffer_t buffer;
@@ -32,9 +32,9 @@ void init() {
 	// *item may can be defined using malloc()
 	buffer.items = (char*) malloc(buffer_length*sizeof(char));
 	// Initialize semaphores
-    sem_init(&buffer.mutex, 0, 1);  // Initialize mutex semaphore with value 1
-    sem_init(&buffer.empty, 0, buffer_length); // Initialize empty semaphore with buffer_length
-    sem_init(&buffer.full, 0, 0); // Initialize full semaphore with value 0
+	sem_init(&buffer.mutex, 0, 1);  // Initialize mutex semaphore with value 1
+	sem_init(&buffer.empty, 0, buffer_length); // Initialize empty semaphore with buffer_length
+	sem_init(&buffer.full, 0, 0); // Initialize full semaphore with value 0
 	buffer.total_count = 0;
 	buffer.current_count = 0;
 }
@@ -77,86 +77,85 @@ int consume(buffer_t* buffer) {
 
 void *producer(void *arg) {
 		
-		while (1) {
-				sem_wait(&buffer.empty);
-				sem_wait(&buffer.mutex);
-				int flag = produce(&buffer);
-				sem_post(&buffer.mutex);
-				sem_post(&buffer.full);
-
-				if (flag == 0)
-					pthread_exit(0);
-		}
+	while (1) {
+		sem_wait(&buffer.empty);
+		sem_wait(&buffer.mutex);
+		int flag = produce(&buffer);
+		sem_post(&buffer.mutex);
+		sem_post(&buffer.full);
+		if (flag == 0)
+			pthread_exit(0);
+	}
 }
 
 void *consumer(void *arg) {
 		
-		while (1) {
-				sem_wait(&buffer.full);
-				sem_wait(&buffer.mutex);
-				int flag = consume(&buffer);
-				sem_post(&buffer.mutex);
-				sem_post(&buffer.empty);
+	while (1) {
+		sem_wait(&buffer.full);
+		sem_wait(&buffer.mutex);
+		int flag = consume(&buffer);
+		sem_post(&buffer.mutex);
+		sem_post(&buffer.empty);
 
-				if (flag == 0)
-					exit(0);
+		if (flag == 0)
+			exit(0);
 				
-		}
+	}
 }
 
 
 
 int main(int argc, char *argv[]) {
-		// Check argv and assign values to 
+	// Check argv and assign values to 
         // buffer_length;
         // number_of_producers;
         // number_of_consumers;
         // number_of_items;
         // a useful function getopt()
-		int opt;
-		// Parse command line options
+	int opt;
+	// Parse command line options
     	while ((opt = getopt(argc, argv, "b:p:c:i:")) != -1) {
         	switch (opt) {
-            	case 'b':
-                	buffer_length = atoi(optarg);
-                	break;
-            	case 'p':
-                	number_of_producers = atoi(optarg);
-                	break;
-            	case 'c':
-                	number_of_consumers = atoi(optarg);
-                	break;
-            	case 'i':
-                	number_of_items = atoi(optarg);
-                	break;
-            	default:
-                	fprintf(stderr, "Usage: %s -b <buffer_length> -p <number_of_producers> -c <number_of_consumers> -i <number_of_items>\n", argv[0]);
-                	exit(EXIT_FAILURE);
+            		case 'b':
+                		buffer_length = atoi(optarg);
+                		break;
+            		case 'p':
+                		number_of_producers = atoi(optarg);
+                		break;
+            		case 'c':
+                		number_of_consumers = atoi(optarg);
+                		break;
+            		case 'i':
+                		number_of_items = atoi(optarg);
+                		break;
+            		default:
+                		fprintf(stderr, "Usage: %s -b <buffer_length> -p <number_of_producers> -c <number_of_consumers> -i <number_of_items>\n", argv[0]);
+                		exit(EXIT_FAILURE);
         	}
-		}
-		//printf("Buffer length: %d\n", buffer_length);
-		//printf("Number of producers: %d\n", number_of_producers);
-		//printf("Number of consumers: %d\n", number_of_consumers);
-		//printf("Number of items: %d\n", number_of_items);
+	}
+	//printf("Buffer length: %d\n", buffer_length);
+	//printf("Number of producers: %d\n", number_of_producers);
+	//printf("Number of consumers: %d\n", number_of_consumers);
+	//printf("Number of items: %d\n", number_of_items);
 		
-		init(&buffer);
+	init(&buffer);
      
-		//sem_init(&buffer.mutex, buffer.full, buffer.empty);
-		pthread_t producers[number_of_producers];
-		pthread_t consumers[number_of_consumers];
+	//sem_init(&buffer.mutex, buffer.full, buffer.empty);
+	pthread_t producers[number_of_producers];
+	pthread_t consumers[number_of_consumers];
 
 
-		for (int i = 0; i < number_of_producers; i++)
-				pthread_create(&producers[i], NULL, producer,(void*) &producers[i]);
+	for (int i = 0; i < number_of_producers; i++)
+		pthread_create(&producers[i], NULL, producer,(void*) &producers[i]);
 
-		for (int i = 0; i < number_of_consumers; i++)
-				pthread_create(&consumers[i], NULL, consumer, (void*)&consumers[i]);
+	for (int i = 0; i < number_of_consumers; i++)
+		pthread_create(&consumers[i], NULL, consumer, (void*)&consumers[i]);
 
-		for (int i = 0; i < number_of_producers; i++)
-				pthread_join(producers[i], NULL);
+	for (int i = 0; i < number_of_producers; i++)
+		pthread_join(producers[i], NULL);
 
-		for (int i = 0; i < number_of_consumers; i++)
-				pthread_join(consumers[i], NULL);
+	for (int i = 0; i < number_of_consumers; i++)
+		pthread_join(consumers[i], NULL);
 
-		exit(EXIT_SUCCESS);
+	exit(EXIT_SUCCESS);
 }
