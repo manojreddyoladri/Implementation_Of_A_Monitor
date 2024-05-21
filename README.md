@@ -25,6 +25,12 @@ Part 2 will solve the producer/consumer problem by developing a custom monitor.
 This indicates a producer with threadid inserted item at index in the buffer. A similar message is required whenever an item is produced:
 
 `"c:<%u>, item: %c, at %d", threadid, item, index` indicating a consumer with `threadid` has consumed `item` at `index` in the buffer.
+
+- **Part 1: Producer/Consumer with Semaphores**
+The goal of Part 1 is to solve the producer/consumer problem using semaphores. Used the pthread library to create producer threads and consumer threads. Each producer thread inserts a single ‘X’ character into a buffer. Each consumer thread removes the most recently inserted ‘X’ from the buffer. Each thread then repeats the process. Use POSIX semaphore (`sem_init`, `sem_wait`, `sem_post`, `sem_destroy`).
+
+- **Part 2: Producer/Consumer with Monitor
+The goal of Part 2 is to create our own monitor to provide synchronization support for the producer/consumer problem. Used the `pthread` library again to create producer threads and consumer threads. Each producer thread inserts a randomly generated character from the alphabet (upper and lower cases) into the first available slot in a buffer.
   
   
 
